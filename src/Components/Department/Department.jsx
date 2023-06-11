@@ -8,14 +8,14 @@ import { useNavigate } from 'react-router-dom';
 
 
 
-const Department = (employeeDepartment,setEmployeeDepartment,deleteDepartment,updateDepartment) => {
+const Department = (setDepartmentSelected, department,setDepartment,deleteDepartment,updateDepartment) => {
 
     // const [department, setDepartment] = useState({ id: 0 });
     //const { id } = useParams() // useParams brings all parameters (from the URL) within an object
     const [allEmployees, setAllEmployees] = useState([{ id: 0 }]);
     const navigate = useNavigate();
     //console.log("setDepartmentSelected: " + JSON.stringify(setDepartmentSelected));
-    console.log("employeeDepartment" + JSON.stringify(employeeDepartment))
+    console.log("department" + JSON.stringify(department))
 
     useEffect(() => {
 
@@ -55,12 +55,12 @@ const Department = (employeeDepartment,setEmployeeDepartment,deleteDepartment,up
         // console.log(e.target.value);
         const manager = allEmployees.find((emp) => emp._id == e.target.value)
         console.log("all department: " + manager)
-        setEmployeeDepartment({ ...employeeDepartment, manager })
+        setDepartment({ ...department, manager })
 
         //if new manager does not exist in departments emp - add him
-        const exist = employeeDepartment.employees.find((emp)=> emp._id == manager._id)
+        const exist = department.employees.find((emp)=> emp._id == manager._id)
         if(!exist){
-            setEmployeeDepartment({...employeeDepartment, employees: [...employeeDepartment.employees,manager]})
+            setDepartment({...department, employees: [...department.employees,manager]})
         }
 
 
@@ -70,14 +70,14 @@ const Department = (employeeDepartment,setEmployeeDepartment,deleteDepartment,up
 
     const handleEmployeeAddition = (e) => {
         const employee = allEmployees.find((emp) => emp._id == e.target.value)
-        const newDepEmployees = [...employeeDepartment.employees, employee]
-        setEmployeeDepartment({ ...employeeDepartment, employees: newDepEmployees })
+        const newDepEmployees = [...department.employees, employee]
+        setDepartment({ ...department, employees: newDepEmployees })
     }
 
     const deleteEmployee = (empId) => {
         debugger;
-        const newDepartmentEmployees = employeeDepartment.employees.filter(emp => emp._id != empId)
-        setEmployeeDepartment({ ...employeeDepartment, employees: newDepartmentEmployees })
+        const newDepartmentEmployees = department.employees.filter(emp => emp._id != empId)
+        setDepartment({ ...department, employees: newDepartmentEmployees })
     }
 
     // const deleteDepartment = async () => {
@@ -106,11 +106,11 @@ const Department = (employeeDepartment,setEmployeeDepartment,deleteDepartment,up
         <div className="Department">
             <div>
                 <h2> Update/Delete Department </h2>
-                <span style={{color: "red", marginLeft: "6px"}}  onClick={()=>setEmployeeDepartment({})}>X</span>
+                <span style={{color: "red", marginLeft: "6px"}}  onClick={()=>setDepartmentSelected(false)}>X</span>
               
                 <form onSubmit={updateDepartment}>
-                    <strong>Name: <input type="text" value={employeeDepartment?.name} onChange={(event) => setEmployeeDepartment({ ...employeeDepartment, name: event.target.value })}></input></strong> <br></br>
-                    <strong>Manager: <select name="managers" value={employeeDepartment?.manager?._id} onChange={handleManagerChange}>
+                    <strong>Name: <input type="text" value={department.name} onChange={(event) => setDepartment({ ...department, name: event.target.value })}></input></strong> <br></br>
+                    <strong>Manager: <select name="managers" value={department.manager?._id} onChange={handleManagerChange}>
 
                         <option value='' disabled>
                             Choose New Manager
@@ -129,7 +129,7 @@ const Department = (employeeDepartment,setEmployeeDepartment,deleteDepartment,up
 
 
                         {allEmployees.map((employee, index) => {
-                            const exist = employeeDepartment?.employees?.find((depEmp) => depEmp._id == employee._id)
+                            const exist = department?.employees?.find((depEmp) => depEmp._id == employee._id)
                             if (!exist) {
                                 return <option key={index} value={employee._id}> {`${employee.firstName} ${employee.lastName}`}</option>
                             }
@@ -153,7 +153,7 @@ const Department = (employeeDepartment,setEmployeeDepartment,deleteDepartment,up
                             </tr>
                         </thead>
                         <tbody>
-                            {employeeDepartment.employees?.map((employee, index) =>
+                            {department.employees?.map((employee, index) =>
 
                                 <tr key={index}>
 
@@ -170,7 +170,7 @@ const Department = (employeeDepartment,setEmployeeDepartment,deleteDepartment,up
 
 
                     <button type="submit">Update</button>
-                    <button onClick={() => deleteDepartment(employeeDepartment._id)}>Delete</button>
+                    <button onClick={() => deleteDepartment(department._id)}>Delete</button>
                 </form>
             </div>
 

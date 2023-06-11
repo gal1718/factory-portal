@@ -107,7 +107,7 @@ const Departments = () => {
             </Table>
 
           
-            {departmentSelected && <Department department={department} setDepartments={setDepartments} updateDepartment={updateDepartment} deleteDepartment={deleteDepartment} ></Department>}
+            {departmentSelected && <Department setDepartmentSelected={setDepartmentSelected} department={department} setDepartments={setDepartments} updateDepartment={updateDepartment} deleteDepartment={deleteDepartment} ></Department>}
        
             
 

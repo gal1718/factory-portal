@@ -27,7 +27,7 @@ const Employees = () => {
     const [newEmployee, setNewEmployee] = useState({ firstName: "", lastName: "", startWorkYear: 0, department: {} })
 
 
-    const [employeeDepartment, setEmployeeDepartment] = useState({})
+    const [department, setDepartment] = useState({})
     const [departmentSelected, setDepartmentSelected] = useState(false);
 
     useEffect(() => {
@@ -112,7 +112,7 @@ const Employees = () => {
     const handleDepartmentSelection = (depId) => {
         const dep = allDepartments.find((dep)=> dep._id == depId)
         debugger;
-        setEmployeeDepartment(dep)
+        setDepartment(dep)
         setDepartmentSelected(true);
 
     }
@@ -173,7 +173,7 @@ const Employees = () => {
 
             {employeeSelected && <Employee setEmployeeSelected={setEmployeeSelected} employee={employee} setEmployee={setEmployee} updateEmployee={updateEmployee} deleteEmployee={deleteEmployee} allDepartments={allDepartments} allShifts={allShifts}></Employee>}
             {newEmployeeSelected && <NewEmployee newEmployee={newEmployee} setNewEmployee={setNewEmployee} addNewEmployee={addNewEmployee} allDepartments={allDepartments} ></NewEmployee>}
-            {employeeDepartment != {} && <Department employeeDepartment={employeeDepartment} setEmployeeDepartment={setEmployeeDepartment} updateDepartment={updateDepartment} deleteDepartment={deleteDepartment}></Department>}
+            {departmentSelected &&  <Department setDepartmentSelected={setDepartmentSelected} department={department} setDepartment={setDepartment}  updateDepartment={updateDepartment} deleteDepartment={deleteDepartment}></Department>}
         </div>
     )
 }
