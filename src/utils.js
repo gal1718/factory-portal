@@ -12,6 +12,15 @@ export const getItem = (url, id) =>
     });
 
 
+export const updateItem = (url, id, newItem) =>
+
+    axios.put(`${url}/${id}`,newItem,{
+        headers: { "x-access-token": sessionStorage['x-access-token'] }
+    });
+
+
+
+
 
 
 

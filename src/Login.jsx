@@ -1,12 +1,14 @@
 import {  useState } from "react"
 import axios from 'axios';
 import * as constants from './constans'
+import { useNavigate } from "react-router-dom";
 
 
-const Login = ({setAccessApproved, setUser}) => {
+const Login = ({setUser}) => {
 
     const [username, setUserName] = useState("");
     const [email, setEmail] = useState("");
+    const navigate = useNavigate()
     
 
 
@@ -22,7 +24,7 @@ const Login = ({setAccessApproved, setUser}) => {
 
         const res = await axios.post('http://localhost:8888/auth/login', loginData)
         console.log(res);
-        if (!res.data.accessToken) {
+        if (!res.data?.accessToken) {
             console.log('access denide')
             console.log(res.data)
             
@@ -33,13 +35,10 @@ const Login = ({setAccessApproved, setUser}) => {
             console.log(res)
             sessionStorage['x-access-token'] = res.data.accessToken;
 
-            //bring user data
-              const resp = await axios.get('http://localhost:8888/user', {
-                headers: { "x-access-token": sessionStorage['x-access-token'] }
-            })
-            console.log("res: " + JSON.stringify(resp.data));
-            setUser(resp.data)
-            setAccessApproved(true)
+       
+            setUser(res.data?.user)
+            navigate('/')
+           
           
         }
 

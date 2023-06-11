@@ -4,13 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Table } from 'react-bootstrap';
 import { Link } from "react-router-dom";
+import Department from "../Department/Department";
+import { departmentsURL } from "../../constans";
+import {getAll} from '../../utils';
 
 const Departments = () => {
 
     const [departments, setDepartments] = useState([])
+    const [department,setDepartment] = useState({})
+    const [departmentSelected, setDepartmentSelected] = useState(false);
     const navigate = useNavigate();
-
     useEffect(() => {
+
 
         const uploadDepartmentsData = async () => {
 
@@ -27,13 +32,40 @@ const Departments = () => {
                 return {...depart, manager: departmentManager}
             });
 
-           // console.log(newDepartments)
+           console.log(newDepartments)
             setDepartments(newDepartments)
         }
 
         uploadDepartmentsData();
 
     }, [])
+
+    
+    const updateDepartment = async (newDep) => {
+        const data = await axios.put(`${departmentsURL}/${newDep._id}`, newDep);
+
+        const { data: departments } = await getAll(departmentsURL); 
+        setDepartment(departments);
+    }
+
+
+
+    const deleteDepartment = async (depId) => {
+
+        const data = await axios.delete(`${departmentsURL}/${depId}`)
+        const { data: departments } = await getAll(departmentsURL); 
+
+        setDepartments(departments);
+        setDepartmentSelected(false);
+
+    }
+
+
+    const handleSelection = (selectedDepartment) => {
+        setDepartment(selectedDepartment)
+        setDepartmentSelected(true);
+        
+    }
 
 
 
@@ -56,12 +88,12 @@ const Departments = () => {
                         <tr key={index}>
                         
                           
-                            <td><Link to={`/department/${department._id}`}>{department.name}</Link></td>
+                            <td onClick={() => handleSelection(department)}>{department.name}</td>
 
                             <td>{department.manager}</td>
                             <td><ul>
                                 {department.employees.map((emp, index) =>
-                                    <li key={index}><Link to={`/employee/${emp._id}`}>{`${emp.firstName} ${emp.lastName}`}</Link></li>
+                                    <li key={index}>{`${emp.firstName} ${emp.lastName}`}</li>
 
                                 )}
 
@@ -73,6 +105,11 @@ const Departments = () => {
                     )}
                 </tbody>
             </Table>
+
+          
+            {departmentSelected && <Department department={department} setDepartments={setDepartments} updateDepartment={updateDepartment} deleteDepartment={deleteDepartment} ></Department>}
+       
+            
 
         </div>
     )

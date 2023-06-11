@@ -1,54 +1,69 @@
-import './App.css';
-import { Link, Outlet } from "react-router-dom";
-import React from 'react';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Departments from './Components/Departments/Departments';
+import Department from './Components/Department/Department';
+import Employees from './Components/Employees/Employees';
+import Employee from './Components/Employee/Employee';
+import NewEmployee from './NewEmployee';
+import Shifts from './Shifts';
 import Login from './Login';
-import axios from "axios"
-import { useEffect, useState } from "react"
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import Home from "./Home";
+
+axios.interceptors.response.use(response => {
+    console.log(response)
+    return response;
+ }, error => {
+   if (error.response?.status === 401 || error.response?.status === 500) {
+    console.log(" err: " + error)
+    
+    //place your reentry code
+    window.location.href = 'http://localhost:3000/login'
+   }
+   return error;
+ });
 
 
+const App = () => {
+
+    const [user, setUser] = useState({})
+
+    useEffect(() => {
+  
+      const verify = async () => {
+        console.log("verifing from react app")
+  
+          // const { data } = await getItem('http://localhost:8888/', id);
+          // console.log("data is: " + JSON.stringify(data))
+          await axios.get('http://localhost:8888/verify', {
+            headers: { "x-access-token": sessionStorage['x-access-token'] }
+        })
+       
+      }
+    if(window.location.href  !== 'http://localhost:3000/login'){
+       verify();
+    }
+  
+  }, [])
 
 
+    return (
+        <div className="App">
+            
+            <BrowserRouter>
+                <Routes>
+                    <Route path="login" element={<Login user={user} setUser={setUser} />} />
+                    <Route path="/" element={<Home user={user} setUser={setUser}/>} >
+                        <Route path="employees" element={<Employees name="123" />} />
+                        <Route path="departments" element={<Departments />} />
+                     
+                        <Route path="shifts" element={<Shifts />} />
+                    </Route>
+                </Routes>
+            </BrowserRouter>
 
-function App() {
-
-  const [accessApproves, setAccessApproved] = useState(false);
-  const [user, setUser] = useState({})
-
-
-  if (!accessApproves) {
-    return <Login setAccessApproved={setAccessApproved} setUser={setUser} />
-  }
-
-
-  return (
-    <div className="App">
-
-      Hello {user.fullName}
-      <button style={{ float: "right" }} onClick={() => {
-        setAccessApproved(false);
-        setUser({})
-      }}> LogOut</button>
-
-
-      <br />
-      <Link to="/">Home</Link> {" | "}
-      <Link to="/employees">Employees</Link> {" | "}
-      <Link to="/departments">Departments</Link> {" | "}
-      <Link to="/shifts">Shifts</Link>
-
-      <br />
-      <div style={{ textAlign: "left" }}>
-        <Outlet />
-      </div>
-
-
-
-    </div>
-
-  );
+        </div>
+    )
 }
 
-
-
-export default App;
+export default App
