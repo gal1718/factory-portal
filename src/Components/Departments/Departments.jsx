@@ -5,14 +5,20 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Table } from 'react-bootstrap';
 import { Link } from "react-router-dom";
 import Department from "../Department/Department";
-import { departmentsURL } from "../../constans";
-import {getAll} from '../../utils';
+import { shiftsURL, employeesURL, departmentsURL } from "../../constans";
+import {updateItem, getAll} from '../../utils';
+import Employee from "../Employee/Employee";
 
 const Departments = () => {
 
     const [departments, setDepartments] = useState([])
     const [department,setDepartment] = useState({})
     const [departmentSelected, setDepartmentSelected] = useState(false);
+    const [allShifts, setAllShifts] = useState([]);
+
+    const[employee,setEmployee] = useState({})
+    const [employeeSelected, setEmployeeSelected] = useState(false);
+    const [allDepartments, setAllDepartments] = useState([]);
     const navigate = useNavigate();
     useEffect(() => {
 
@@ -26,14 +32,19 @@ const Departments = () => {
            // console.log("departments: " + JSON.stringify(departments));
 
         
-            const newDepartments = departments.map((depart) => {
+            // const newDepartments = departments.map((depart) => {
             
-                const departmentManager = depart.manager?.firstName + " " + depart.manager?.lastName;   
-                return {...depart, manager: departmentManager}
-            });
+            //     const departmentManager = depart.manager?.firstName + " " + depart.manager?.lastName;   
+            //     return {...depart, manager: departmentManager}
+            // });
 
-           console.log(newDepartments)
-            setDepartments(newDepartments)
+           console.log(departments)
+            setDepartments(departments)
+            setAllDepartments(allDepartments)
+
+            const { data: allShifts } = await getAll(shiftsURL);
+            console.log("allShifts: " + JSON.stringify(allShifts))
+            setAllShifts(allShifts)
         }
 
         uploadDepartmentsData();
@@ -61,10 +72,34 @@ const Departments = () => {
     }
 
 
-    const handleSelection = (selectedDepartment) => {
-        setDepartment(selectedDepartment)
+    const handleSelection = (dep) => {
+        debugger
         setDepartmentSelected(true);
+        setDepartment(dep)
         
+        
+    }
+
+    const handleEmpSelection = (emp) => {
+
+        setEmployeeSelected(true)
+        setEmployee(emp);
+
+
+    }
+
+    const updateEmployee = async (newEmp) => {
+
+        const data = await updateItem(employeesURL, newEmp._id, newEmp)
+
+       
+    }
+
+    const deleteEmployee = async (empId) => {
+
+        const data = await axios.delete(`${employeesURL}/${empId}`)
+      
+
     }
 
 
@@ -83,17 +118,17 @@ const Departments = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {departments.map((department, index) =>
+                    {departments.map((dep, index) =>
 
                         <tr key={index}>
                         
                           
-                            <td onClick={() => handleSelection(department)}>{department.name}</td>
+                            <td onClick={() => handleSelection(dep)}>{dep.name}</td>
 
-                            <td>{department.manager}</td>
+                            <td>{dep.manager}</td>
                             <td><ul>
-                                {department.employees.map((emp, index) =>
-                                    <li key={index}>{`${emp.firstName} ${emp.lastName}`}</li>
+                                {dep.employees.map((emp, index) =>
+                                    <li onClick={() => handleEmpSelection(emp)} key={index}>{`${emp.firstName} ${emp.lastName}`}</li>
 
                                 )}
 
@@ -108,6 +143,7 @@ const Departments = () => {
 
           
             {departmentSelected && <Department setDepartmentSelected={setDepartmentSelected} department={department} setDepartments={setDepartments} updateDepartment={updateDepartment} deleteDepartment={deleteDepartment} ></Department>}
+            {employeeSelected && <Employee setEmployeeSelected={setEmployeeSelected} employee={employee} updateEmployee={updateEmployee} deleteEmployee={deleteEmployee} allDepartments={allDepartments} allShifts={allShifts}  ></Employee>}
        
             
 
