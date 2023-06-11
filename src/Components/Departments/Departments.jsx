@@ -125,7 +125,7 @@ const Departments = () => {
                           
                             <td onClick={() => handleSelection(dep)}>{dep.name}</td>
 
-                            <td>{dep.manager}</td>
+                            <td>{dep.manager.firstName}</td>
                             <td><ul>
                                 {dep.employees.map((emp, index) =>
                                     <li onClick={() => handleEmpSelection(emp)} key={index}>{`${emp.firstName} ${emp.lastName}`}</li>
