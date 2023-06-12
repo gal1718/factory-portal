@@ -110,10 +110,11 @@ const Employees = () => {
 
 
     const handleDepartmentSelection = (depId) => {
-        const dep = allDepartments.find((dep)=> dep._id == depId)
+        const depa = allDepartments.find((dep)=> dep._id == depId)
         debugger;
-        setDepartment(dep)
+        setDepartment(depa)
         setDepartmentSelected(true);
+        
 
     }
 
