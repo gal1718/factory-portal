@@ -1,7 +1,7 @@
 import './App.css';
 import { Link, Outlet } from "react-router-dom";
 import React from 'react';
-import Login from './Login';
+import Login from './Components/Login/Login';
 import axios from "axios"
 import { useEffect, useState } from "react"
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +23,7 @@ function Home({user, setUser}) {
   return (
     <div className="Home">
 
-      Hello {user.fullName}
+      Hello {user.name}
       <button style={{ float: "right" }} onClick={() => {
 
         setUser({})

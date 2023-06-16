@@ -4,8 +4,8 @@ import Department from './Components/Department/Department';
 import Employees from './Components/Employees/Employees';
 import Employee from './Components/Employee/Employee';
 import NewEmployee from './NewEmployee';
-import Shifts from './Shifts';
-import Login from './Login';
+import Shifts from './Components/Shifts/Shifts';
+import Login from './Components/Login/Login';
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Home from "./Home";
@@ -31,7 +31,7 @@ const App = () => {
     useEffect(() => {
   
       const verify = async () => {
-        console.log("verifing from react app")
+        console.log("verifing - app")
   
           // const { data } = await getItem('http://localhost:8888/', id);
           // console.log("data is: " + JSON.stringify(data))
@@ -52,11 +52,10 @@ const App = () => {
             
             <BrowserRouter>
                 <Routes>
-                    <Route path="login" element={<Login user={user} setUser={setUser} />} />
-                    <Route path="/" element={<Home user={user} setUser={setUser}/>} >
+                    <Route path="login" element={<Login setUser={setUser} />} />
+                    <Route path="/" element={<Home user={user} />} >
                         <Route path="employees" element={<Employees name="123" />} />
                         <Route path="departments" element={<Departments />} />
-                     
                         <Route path="shifts" element={<Shifts />} />
                     </Route>
                 </Routes>

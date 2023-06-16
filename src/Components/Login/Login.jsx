@@ -1,6 +1,6 @@
 import {  useState } from "react"
 import axios from 'axios';
-import * as constants from './constans'
+import * as constants from '../../constans'
 import { useNavigate } from "react-router-dom";
 
 
@@ -23,7 +23,7 @@ const Login = ({setUser}) => {
         console.log(loginData)
 
         const res = await axios.post('http://localhost:8888/auth/login', loginData)
-        console.log(res);
+        console.log("login res " + res);
         if (!res.data?.accessToken) {
             console.log('access denide')
             console.log(res.data)

@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react"
-import axios from "axios"
+import { useState } from "react"
 import { Table } from 'react-bootstrap';
-import {useLocation} from 'react-router-dom';
+
 
 
 const Employee = ({ setEmployeeSelected,employee, setEmployee, updateEmployee, deleteEmployee, allShifts, allDepartments }) => {

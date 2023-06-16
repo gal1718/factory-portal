@@ -1,26 +1,25 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
-import { useNavigate } from 'react-router-dom';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Table } from 'react-bootstrap';
-import { Link } from "react-router-dom";
 import Department from "../Department/Department";
 import { shiftsURL, employeesURL, departmentsURL } from "../../constans";
-import { updateItem, getAll } from '../../utils';
+import { updateItem, getAll, updateItems } from '../../utils';
 import Employee from "../Employee/Employee";
+
 
 const Departments = () => {
 
     const [departments, setDepartments] = useState([])
-    const [department, setDepartment] = useState({})
-   
-    const [departmentSelected, setDepartmentSelected] = useState(false);
     const [allShifts, setAllShifts] = useState([]);
+    const [allEmployees, setAllEmployees] = useState([]);
+
+    const [department, setDepartment] = useState({})
+    const [departmentSelected, setDepartmentSelected] = useState(false);
 
     const [employee, setEmployee] = useState({})
     const [employeeSelected, setEmployeeSelected] = useState(false);
-    const [allEmployees, setAllEmployees] = useState([]);
-    const navigate = useNavigate();
+    
+   
     useEffect(() => {
 
 
@@ -39,17 +38,17 @@ const Departments = () => {
             //     return {...depart, manager: departmentManager}
             // });
 
-            console.log("departments " + JSON.stringify(departments))
+            console.log("all departments " + JSON.stringify(departments))
             setDepartments(departments)
 
             const { data: employees } = await getAll(employeesURL);
-            console.log("employees: " + JSON.stringify(employees))
+            console.log("all employees: " + JSON.stringify(employees))
             setAllEmployees(employees)
 
             // setAllDepartments(allDepartments)
 
             const { data: allShifts } = await getAll(shiftsURL);
-            console.log("allShifts: " + JSON.stringify(allShifts))
+            // console.log("allShifts: " + JSON.stringify(allShifts))
             setAllShifts(allShifts)
         }
 
@@ -63,6 +62,8 @@ const Departments = () => {
 
         const { data: newDepartments } = await getAll(departmentsURL);
         setDepartments(newDepartments);
+
+        //need to update also the employees in case that emps addedto dep:
     }
 
 
@@ -79,12 +80,9 @@ const Departments = () => {
 
 
     const handleSelection = (dep) => {
-        debugger
+
         setDepartment(dep)
-       console.log("department in parent: " + JSON.stringify(department))
         setDepartmentSelected(true);
-        
-    
 
     }
 
@@ -104,6 +102,13 @@ const Departments = () => {
 
     }
 
+    const updateEmployees = async (url,updatedEmps) => {
+
+        const data = await updateItems(url, updatedEmps)
+
+
+    }
+
     const deleteEmployee = async (empId) => {
 
         const data = await axios.delete(`${employeesURL}/${empId}`)
@@ -114,7 +119,7 @@ const Departments = () => {
 
     return (
         <div className="Departments">
-            {!employeeSelected &&
+            {!employeeSelected && !departmentSelected &&
                 <Table striped bordered hover>
                     <thead>
                         <tr>
@@ -135,9 +140,15 @@ const Departments = () => {
                                 <td onClick={() => handleSelection(dep)}>{dep.name}</td>
 
                                 <td>{dep.manager.firstName}</td>
+
                                 <td><ul>
-                                    {dep.employees.map((emp, index) =>
-                                        <li onClick={() => handleEmpSelection(emp._id)} key={index}>{`${emp.firstName} ${emp.lastName}`}</li>
+                                    {allEmployees.map((emp, index) => {
+                                        if (emp.department._id == dep._id) {
+                                            return <li onClick={() => handleEmpSelection(emp._id)} key={index}>{`${emp.firstName} ${emp.lastName}`}</li>
+                                        }
+
+                                    }
+
 
                                     )}
 
@@ -152,7 +163,7 @@ const Departments = () => {
             }
 
 
-            {departmentSelected && <Department  setDepartmentSelected={setDepartmentSelected} department={department} setDepartment={setDepartment} updateDepartment={updateDepartment} deleteDepartment={deleteDepartment} allEmployees={allEmployees} ></Department>}
+            {departmentSelected && <Department department={department} setDepartment={setDepartment} setDepartmentSelected={setDepartmentSelected} updateDepartment={updateDepartment} deleteDepartment={deleteDepartment} allEmployees={allEmployees} setAllEmployees={setAllEmployees} updateEmployees={updateEmployees}></Department>}
             {employeeSelected && <Employee setEmployeeSelected={setEmployeeSelected} employee={employee} setEmployee={setEmployee} updateEmployee={updateEmployee} deleteEmployee={deleteEmployee} allDepartments={departments} allShifts={allShifts}  ></Employee>}
 
 

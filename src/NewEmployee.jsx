@@ -3,7 +3,7 @@ import axios from "axios"
 import { Table } from 'react-bootstrap';
 
 
-const NewEmployee = ({newEmployee, setNewEmployee, addNewEmployee, allDepartments}) => {
+const NewEmployee = ({setNewEmployeeSelected, newEmployee, setNewEmployee, addNewEmployee, allDepartments}) => {
 
    
     const handleSubmit = (event) => {
@@ -29,7 +29,7 @@ const NewEmployee = ({newEmployee, setNewEmployee, addNewEmployee, allDepartment
                 <form onSubmit={handleSubmit}>
                     <strong>First Name: <input type="text" value={newEmployee.firstName} onChange={(event) => setNewEmployee({ ...newEmployee, firstName: event.target.value })}></input></strong> <br></br>
                     <strong>Last Name: <input type="text" value={newEmployee.lastName} onChange={(event) => setNewEmployee({ ...newEmployee, lastName: event.target.value })}></input></strong> <br></br>
-                    <strong>Last Name: <input type="number" value={newEmployee.startWorkYear} onChange={(event) => setNewEmployee({ ...newEmployee, startWorkYear: event.target.value })}></input></strong> <br></br>
+                    <strong>Start Work Year: <input type="number" value={newEmployee.startWorkYear} onChange={(event) => setNewEmployee({ ...newEmployee, startWorkYear: event.target.value })}></input></strong> <br></br>
                     <strong>Departments: <select name="departments" value={newEmployee.department?._id} onChange={handleDepartmentChange}>
 
                         <option value='' disabled>
@@ -43,8 +43,8 @@ const NewEmployee = ({newEmployee, setNewEmployee, addNewEmployee, allDepartment
                   
 
                     <button type="submit">Add</button>
-                    <button onClick={() =>{}}>Cancel</button>
                 </form>
+                <button onClick={() => setNewEmployeeSelected(false)}>Cancel</button>
             </div>
 
 
