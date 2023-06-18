@@ -1,10 +1,18 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
-import { Table } from 'react-bootstrap';
+///import { Table } from 'react-bootstrap';
 import Department from "../Department/Department";
 import { shiftsURL, employeesURL, departmentsURL } from "../../constans";
-import { updateItem, getAll, updateItems } from '../../utils';
+import { updateItem, getAll, updateItems, addItem } from '../../utils';
 import Employee from "../Employee/Employee";
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import NewDepartment from "../NewDepartment/NewDepartment";
 
 
 const Departments = () => {
@@ -18,8 +26,11 @@ const Departments = () => {
 
     const [employee, setEmployee] = useState({})
     const [employeeSelected, setEmployeeSelected] = useState(false);
-    
-   
+
+    const [newDepartment, setNewDepartment] = useState({ name: "" })
+    const [newDepartmentSelected, setNewDepartmentSelected] = useState(false);
+
+
     useEffect(() => {
 
 
@@ -29,7 +40,7 @@ const Departments = () => {
             const { data: departments } = await axios.get('http://localhost:8888/departments', {
                 headers: { "x-access-token": sessionStorage['x-access-token'] }
             })
-            // console.log("departments: " + JSON.stringify(departments));
+            console.log("departments: " + JSON.stringify(departments));
 
 
             // const newDepartments = departments.map((depart) => {
@@ -58,10 +69,15 @@ const Departments = () => {
 
 
     const updateDepartment = async (newDep) => {
-        const data = await axios.put(`${departmentsURL}/${newDep._id}`, newDep);
+        debugger;
+
+        const data = await updateItem(departmentsURL, newDep._id, newDep)
+
+        // const data = await axios.put(`${departmentsURL}/${newDep._id}`, newDep);
 
         const { data: newDepartments } = await getAll(departmentsURL);
         setDepartments(newDepartments);
+        setDepartmentSelected(false)
 
         //need to update also the employees in case that emps addedto dep:
     }
@@ -102,10 +118,13 @@ const Departments = () => {
 
     }
 
-    const updateEmployees = async (url,updatedEmps) => {
+    const updateEmployees = async (url, updatedEmps) => {
 
-        const data = await updateItems(url, updatedEmps)
-
+        debugger
+        const { data: employees } = await updateItems(url, updatedEmps)
+        console.log("data is: " + JSON.stringify(employees))
+        setDepartmentSelected(false)
+        setAllEmployees(employees)
 
     }
 
@@ -115,55 +134,70 @@ const Departments = () => {
 
     }
 
+    const addNewDepartment = async (newDep) => {
+        addItem(departmentsURL, newDep);
+        const { data: departments } = await getAll(departmentsURL);
+        setDepartments(departments);
+        setNewDepartment({ name: "" })
+        setNewDepartmentSelected(false);
+    }
+
+
 
 
     return (
         <div className="Departments">
-            {!employeeSelected && !departmentSelected &&
-                <Table striped bordered hover>
-                    <thead>
-                        <tr>
-
-                            <th>Name</th>
-                            <th>Manager</th>
-                            <th>Employees</th>
 
 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {departments.map((dep, index) =>
+            {!employeeSelected && !departmentSelected && !newDepartmentSelected && 
+                <div>
+                    <button onClick={() => setNewDepartmentSelected(true)}>New Department</button>
+                    <TableContainer component={Paper}>
+                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Name</TableCell>
+                                    <TableCell align="right">Manager</TableCell>
+                                    <TableCell align="right">Employees</TableCell>
 
-                            <tr key={index}>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {departments.map((dep, index) => (
+                                    <TableRow
+                                        key={index}
+                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    >
+                                        <TableCell onClick={() => handleSelection(dep)} component="th" scope="row">
+                                            {dep.name}
+                                        </TableCell>
+                                        <TableCell align="right">{dep.manager?.firstName}</TableCell>
+                                        <TableCell align="right"><ul>
+                                            {allEmployees.map((emp, index) => {
+                                                if (emp.department?._id == dep._id) {
+                                                    return <li style={{ align: "right" }} onClick={() => handleEmpSelection(emp._id)} key={index}>{`${emp.firstName} ${emp.lastName}`}</li>
+                                                }
+
+                                            }
+
+                                            )}
 
 
-                                <td onClick={() => handleSelection(dep)}>{dep.name}</td>
-
-                                <td>{dep.manager.firstName}</td>
-
-                                <td><ul>
-                                    {allEmployees.map((emp, index) => {
-                                        if (emp.department._id == dep._id) {
-                                            return <li onClick={() => handleEmpSelection(emp._id)} key={index}>{`${emp.firstName} ${emp.lastName}`}</li>
-                                        }
-
-                                    }
+                                        </ul></TableCell>
 
 
-                                    )}
-
-
-                                </ul></td>
-
-
-                            </tr>
-                        )}
-                    </tbody>
-                </Table>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </div>
             }
 
 
+
             {departmentSelected && <Department department={department} setDepartment={setDepartment} setDepartmentSelected={setDepartmentSelected} updateDepartment={updateDepartment} deleteDepartment={deleteDepartment} allEmployees={allEmployees} setAllEmployees={setAllEmployees} updateEmployees={updateEmployees}></Department>}
+            {newDepartmentSelected && <NewDepartment setNewDepartmentSelected={setNewDepartmentSelected} newDepartment={newDepartment} setNewDepartment={setNewDepartment} addNewDepartment={addNewDepartment}  ></NewDepartment>}
             {employeeSelected && <Employee setEmployeeSelected={setEmployeeSelected} employee={employee} setEmployee={setEmployee} updateEmployee={updateEmployee} deleteEmployee={deleteEmployee} allDepartments={departments} allShifts={allShifts}  ></Employee>}
 
 

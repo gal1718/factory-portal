@@ -1,10 +1,8 @@
-import './App.css';
+//import './App.css';
+import '../../App.css'
 import { Link, Outlet } from "react-router-dom";
 import React from 'react';
-import Login from './Components/Login/Login';
-import axios from "axios"
-import { useEffect, useState } from "react"
-import { useNavigate } from 'react-router-dom';
+
 
 
 
@@ -24,7 +22,7 @@ function Home({user, setUser}) {
     <div className="Home">
 
       Hello {user.name}
-      <button style={{ float: "right" }} onClick={() => {
+      <button style={{ float: "right", margin: "10px" }} onClick={() => {
 
         setUser({})
       }}> LogOut</button>
@@ -34,7 +32,8 @@ function Home({user, setUser}) {
       <Link to="/">Home</Link> {" | "}
       <Link to="/employees">Employees</Link> {" | "}
       <Link to="/departments">Departments</Link> {" | "}
-      <Link to="/shifts">Shifts</Link>
+      <Link to="/shifts">Shifts</Link> {" | "}
+      <Link to="/users">Users</Link>
 
       <br />
       <div style={{ textAlign: "left" }}>

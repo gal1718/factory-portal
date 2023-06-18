@@ -1,14 +1,18 @@
+
+
+import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Departments from './Components/Departments/Departments';
 import Department from './Components/Department/Department';
 import Employees from './Components/Employees/Employees';
 import Employee from './Components/Employee/Employee';
-import NewEmployee from './NewEmployee';
+import NewEmployee from './Components/NewEmployee/NewEmployee';
 import Shifts from './Components/Shifts/Shifts';
+import Users from "./Components/Users/users";
 import Login from './Components/Login/Login';
-import { useState, useEffect } from "react";
+
 import axios from "axios";
-import Home from "./Home";
+import Home from "./Components/Home/Home";
 
 axios.interceptors.response.use(response => {
     console.log(response)
@@ -57,6 +61,8 @@ const App = () => {
                         <Route path="employees" element={<Employees name="123" />} />
                         <Route path="departments" element={<Departments />} />
                         <Route path="shifts" element={<Shifts />} />
+                        <Route path="users" element={<Users />} />
+                     
                     </Route>
                 </Routes>
             </BrowserRouter>

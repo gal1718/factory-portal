@@ -52,7 +52,7 @@ const Employee = ({ setEmployeeSelected,employee, setEmployee, updateEmployee, d
                 <form onSubmit={handleSubmit}>
                     <strong>First Name: <input type="text" value={employee?.firstName} onChange={(event) => setEmployee({ ...employee, firstName: event.target.value })}></input></strong> <br></br>
                     <strong>Last Name: <input type="text" value={employee?.lastName} onChange={(event) => setEmployee({ ...employee, lastName: event.target.value })}></input></strong> <br></br>
-                    <strong>Departments: <select name="departments" value={employee?.department?._id} onChange={handleDepartmentChange}>
+                    <strong>Departments: <select name="departments" value={employee?.department?._id || ''} onChange={handleDepartmentChange}>
 
                         <option value='' disabled>
                             Choose a Department

@@ -9,6 +9,7 @@ const NewEmployee = ({setNewEmployeeSelected, newEmployee, setNewEmployee, addNe
     const handleSubmit = (event) => {
         event.preventDefault();
         addNewEmployee(newEmployee);
+
    
     }
 
@@ -18,6 +19,11 @@ const NewEmployee = ({setNewEmployeeSelected, newEmployee, setNewEmployee, addNe
         const department = allDepartments.find((department) => department._id == e.target.value)
         setNewEmployee({ ...newEmployee, department })
     };
+
+    const handleCancel = () => {
+        setNewEmployee({})
+        setNewEmployeeSelected(false);
+    }
 
     
 
@@ -29,8 +35,8 @@ const NewEmployee = ({setNewEmployeeSelected, newEmployee, setNewEmployee, addNe
                 <form onSubmit={handleSubmit}>
                     <strong>First Name: <input type="text" value={newEmployee.firstName} onChange={(event) => setNewEmployee({ ...newEmployee, firstName: event.target.value })}></input></strong> <br></br>
                     <strong>Last Name: <input type="text" value={newEmployee.lastName} onChange={(event) => setNewEmployee({ ...newEmployee, lastName: event.target.value })}></input></strong> <br></br>
-                    <strong>Start Work Year: <input type="number" value={newEmployee.startWorkYear} onChange={(event) => setNewEmployee({ ...newEmployee, startWorkYear: event.target.value })}></input></strong> <br></br>
-                    <strong>Departments: <select name="departments" value={newEmployee.department?._id} onChange={handleDepartmentChange}>
+                    <strong>Start Work Year: <input type="number" value={newEmployee.startWorkYear} onChange={(event) => setNewEmployee({ ...newEmployee, startWorkYear: +event.target.value })}></input></strong> <br></br>
+                    <strong>Departments: <select name="departments" value='' onChange={handleDepartmentChange}>
 
                         <option value='' disabled>
                             Choose a Department
@@ -42,9 +48,9 @@ const NewEmployee = ({setNewEmployeeSelected, newEmployee, setNewEmployee, addNe
                     </select></strong><br></br><br></br>
                   
 
-                    <button type="submit">Add</button>
+                    <button disabled={!newEmployee.firstName || !newEmployee.lastName || !newEmployee.startWorkYear || !newEmployee.department} type="submit">Add</button>
                 </form>
-                <button onClick={() => setNewEmployeeSelected(false)}>Cancel</button>
+                <button onClick={handleCancel}>Cancel</button>
             </div>
 
 

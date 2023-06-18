@@ -11,60 +11,61 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-const Shifts = () => {
+const Users = () => {
 
 
-    const [shifts, setShifts] = useState([])
+    const [users, setUsers] = useState([])
 
     useEffect(() => {
 
-        const uploadShiftsData = async () => {
+        const uploadUsersData = async () => {
 
-        
-            const {data: shifts} = await axios.get('http://localhost:8888/shifts', {
+
+            const { data: users } = await axios.get('http://localhost:8888/users', {
                 headers: { "x-access-token": sessionStorage['x-access-token'] }
             })
-           // console.log("departments: " + JSON.stringify(departments));
+            // console.log("departments: " + JSON.stringify(departments));
             // const newEmployees = employees.map((emp) => {
-            
+
             //     const departmentName = emp.department?.name || "";   
             //     return {...emp, department: departmentName}
             // });
-            console.log("shifts " + JSON.stringify(shifts));
-            setShifts(shifts)
+            console.log("users " + JSON.stringify(users));
+            setUsers(users)
             // setUserFullName(res.data)
 
         }
 
-        uploadShiftsData();
+        uploadUsersData();
 
     }, [])
 
-    
+
 
     return (
-        <div className="Shifts">
-             <TableContainer component={Paper}>
+        <div className="Users">
+
+
+
+            <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                         <TableRow>
-                            <TableCell>Date</TableCell>
-                            <TableCell align="right">Starting Hour</TableCell>
-                            <TableCell align="right">Ending Hour</TableCell>
+                            <TableCell>Name</TableCell>
+                            <TableCell align="right">Num Of Actions</TableCell>
 
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {shifts.map((shift, index) => (
+                        {users.map((user, index) => (
                             <TableRow
                                 key={index}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 <TableCell component="th" scope="row">
-                                    {shift.date}
+                                    {user.fullName}
                                 </TableCell>
-                                <TableCell align="right">{shift.startingHr}</TableCell>
-                                <TableCell align="right">{shift.endingHr}</TableCell>
+                                <TableCell align="right">{user.numOfActions}</TableCell>
                         
 
                             </TableRow>
@@ -72,10 +73,9 @@ const Shifts = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
-     
 
         </div>
     )
 }
 
-export default Shifts
+export default Users

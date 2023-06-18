@@ -3,7 +3,7 @@ import axios from "axios"
 import { Table } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { employeesURL, departmentsURL, shiftsURL } from '../../constans';
-import {  getAll } from '../../utils';
+import { getAll } from '../../utils';
 
 
 
@@ -19,7 +19,7 @@ const Department = ({ setDepartmentSelected, department, setDepartment, updateDe
 
         const departmentEmps = [];
         allEmployees.map((employee) => {
-            if (employee.department._id == department._id) {
+            if (employee.department?._id == department._id) {
                 departmentEmps.push(employee);
             }
         })
@@ -39,37 +39,37 @@ const Department = ({ setDepartmentSelected, department, setDepartment, updateDe
         setDepartment({ ...department, manager })
 
         //if new manager does not exist in departments emp - add him
-        const exist = department.employees.find((emp) => emp._id == manager._id)
-        if (!exist) {
-            setDepartment({ ...department, employees: [...department.employees, manager] })
-        }
+        // const exist = department.employees.find((emp) => emp._id == manager._id)
+        // if (!exist) {
+        //     setDepartment({ ...department, employees: [...department.employees, manager] })
+        // }
 
 
     };
 
 
     const handleEmployeeAddition = (updatedEmp) => {
-       // debugger;
+        //debugger;
         //adding emp only to state
 
         setEmployeesForUpdate([...employeesForUpdate, updatedEmp])
         setDepartmentEmployees([...departmentEmployees, updatedEmp])
-        
+
 
     }
 
     const handleEmployeeRemoval = (updatedEmp) => {
-        //debugger;
+        // debugger;
         //adding emp only to state
-          
-          const { department, ...rest } = updatedEmp;
-          
-          console.log(rest);
 
-        setEmployeesForUpdate([...employeesForUpdate, rest])
+        //  const { department, ...rest } = updatedEmp;
+
+        console.log(updatedEmp);
+
+        setEmployeesForUpdate([...employeesForUpdate, updatedEmp])
         const newDepEmps = departmentEmployees.filter((emp) => emp._id != updatedEmp._id)
         setDepartmentEmployees(newDepEmps);
-       
+
     }
 
 
@@ -77,23 +77,24 @@ const Department = ({ setDepartmentSelected, department, setDepartment, updateDe
     const handleSubmit = (event) => {
         debugger;
         event.preventDefault();
-        //update emp dep: 
-        
-        if (employeesForUpdate)
-        updateEmployees(employeesURL, employeesForUpdate)//only employees has depasrtment. departemt doesnt have emps field
-
-        const newEmps = allEmployees.map((emp)=> {
-            employeesForUpdate.map((updatedEmployee) => {
-                if(updatedEmployee._id == emp._id){
-                    return updatedEmployee
-                }
-                else{
-                    return emp;
-                }
-            })
-        })
-        setAllEmployees(newEmps)//cxheck if its needed
+        //update emp dep:
         updateDepartment(department);
+
+        if (employeesForUpdate.length > 0)
+            updateEmployees(employeesURL, employeesForUpdate)//only employees has depasrtment. departemt doesnt have emps field
+
+        // const newEmps = allEmployees.map((emp)=> {
+        //     employeesForUpdate.map((updatedEmployee) => {
+        //         if(updatedEmployee._id == emp._id){
+        //             return updatedEmployee
+        //         }
+        //         else{
+        //             return emp;
+        //         }
+        //     })
+        // })
+        // setAllEmployees(newEmps)//cxheck if its needed
+
 
         //need to update also the dep for the new emp
 
@@ -117,7 +118,7 @@ const Department = ({ setDepartmentSelected, department, setDepartment, updateDe
                             Choose New Manager
                         </option>
                         {allEmployees?.map((employee, index) => {
-                            if (employee.department._id == department._id) {
+                            if (employee.department?._id == department._id) {
                                 return <option key={index} value={employee._id}> {`${employee.firstName} ${employee.lastName}`}</option>
                             }
                         })}
@@ -133,7 +134,7 @@ const Department = ({ setDepartmentSelected, department, setDepartment, updateDe
 
                         {allEmployees.map((employee, index) => {
                             if (!departmentEmployees.some((emp) => emp._id == employee._id)) {
-                                return <option onClick={() => handleEmployeeAddition({...employee,department})} key={index} value={employee._id}> {`${employee.firstName} ${employee.lastName}`}</option>
+                                return <option onClick={() => handleEmployeeAddition({ ...employee, department })} key={index} value={employee._id}> {`${employee.firstName} ${employee.lastName}`}</option>
                             }
                         })}
 
@@ -158,8 +159,8 @@ const Department = ({ setDepartmentSelected, department, setDepartment, updateDe
 
                                     <td>{employee.firstName} {employee.lastName}</td>
                                     <td>{employee.startWorkYear}</td>
-                                    <td style={{ color: "red" }} onClick={() => handleEmployeeRemoval(employee)}>X</td>
-                                    
+                                    <td style={{ color: "red" }} onClick={() => handleEmployeeRemoval({ ...employee, department: '' })}>X</td>
+
 
                                 </tr>
 
