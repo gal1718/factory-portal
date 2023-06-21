@@ -13,10 +13,19 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { useSelector, useDispatch} from 'react-redux';
+
 
 //const employeesURL = "http://localhost:8888/employees";//end point from express 
 
 const Employees = () => {
+    const dispatch = useDispatch();
+
+
+    //const todayUserActions = useSelector((state) => state.todayUserActions);
+
+    const actionsLimitExceed = useSelector((state) => state.actionsLimitExceed);
+
 
 
     const [employees, setEmployees] = useState([])
@@ -37,27 +46,28 @@ const Employees = () => {
     useEffect(() => {
 
         const uploadAllData = async () => {
-
+            debugger
 
             const { data: employees } = await getAll(employeesURL);
-            // console.log("employees: " + JSON.stringify(employees))
             setEmployees(employees)
 
 
-
             const { data: allDepartments } = await getAll(departmentsURL);
-            //console.log("allDepartments: " + JSON.stringify(allDepartments))
             setAllDepartments(allDepartments)
 
 
-
             const { data: allShifts } = await getAll(shiftsURL);
-            // console.log("allShifts: " + JSON.stringify(allShifts))
             setAllShifts(allShifts)
 
         }
 
-        uploadAllData();
+        if (!actionsLimitExceed) {
+
+            uploadAllData();
+            dispatch({ type: 'ADD' });
+
+        }
+   
 
     }, [])
 
@@ -70,10 +80,8 @@ const Employees = () => {
 
 
     const updateEmployee = async (newEmp) => {
-        // debugger;
 
         const data = await updateItem(employeesURL, newEmp._id, newEmp)
-
         const { data: employees } = await getAll(employeesURL);
         setEmployees(employees);
         setEmployeeSelected(false)
@@ -84,10 +92,6 @@ const Employees = () => {
     const deleteEmployee = async (empId) => {
 
         const data = await deleteItem(`${employeesURL}/${empId}`)
-
-        // const { data: employees } = await getAll(employeesURL);
-
-        // setEmployees(employees);
         setEmployeeSelected(false);
 
     }
@@ -133,10 +137,7 @@ const Employees = () => {
 
     const updateEmployees = async (url, updatedEmps) => {
 
-        debugger
         const { data: employees } = await updateItems(url, updatedEmps)
-
-        console.log("data is: " + JSON.stringify(employees))
         setDepartmentSelected(false)
         setEmployees(employees)
 
@@ -149,7 +150,7 @@ const Employees = () => {
 
 
             {!employeeSelected && !departmentSelected && !newEmployeeSelected && <div>
-                <button style={{marginRight: "30px"}} onClick={() => setNewEmployeeSelected(true)}>New Employee</button>
+                <button disabled={actionsLimitExceed} style={{ marginRight: "30px" }} onClick={() => setNewEmployeeSelected(true)}>New Employee</button>
                 <strong>Filter by Department: <select name="departments" value={departmentIdFilter} onChange={(event) => setDepartmentIdFilter(event.target.value)}>
 
                     <option value=''>
@@ -197,15 +198,12 @@ const Employees = () => {
                                     </TableRow>
                                 ))
                             }
-                    </TableBody>
+                        </TableBody>
                     </Table>
                 </TableContainer>
             </div>
 
             }
-
-
-
 
 
 

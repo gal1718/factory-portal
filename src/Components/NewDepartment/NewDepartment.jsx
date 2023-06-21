@@ -9,8 +9,7 @@ const NewDepartment = ({setNewDepartmentSelected, newDepartment, setNewDepartmen
     const handleSubmit = (event) => {
         event.preventDefault();
         addNewDepartment(newDepartment);
-
-   
+ 
     }
 
 

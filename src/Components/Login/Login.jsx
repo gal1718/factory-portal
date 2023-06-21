@@ -1,6 +1,6 @@
 import {  useState } from "react"
 import axios from 'axios';
-import * as constants from '../../constans'
+import { loginUrl } from '../../constans';
 import { useNavigate } from "react-router-dom";
 
 
@@ -20,26 +20,21 @@ const Login = ({setUser}) => {
             email
         }
 
-        console.log(loginData)
-
-        const res = await axios.post('http://localhost:8888/auth/login', loginData)
-        console.log("login res " + res);
+        const res = await axios.post(loginUrl, loginData) // http://localhost:8888/auth/login // assigning to JWT (in server)//returns the access token and the user data 
+        
         if (!res.data?.accessToken) {
             console.log('access denide')
-            console.log(res.data)
-            
+            console.log(res.data)     
         }
         else {
-       
+
             console.log('access approved')
             console.log(res)
+            
             sessionStorage['x-access-token'] = res.data.accessToken;
-
-       
             setUser(res.data?.user)
-            navigate('/')
-           
-          
+            navigate('/')// Navigate to HomeWrapper
+            
         }
 
 

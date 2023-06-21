@@ -13,9 +13,16 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import NewDepartment from "../NewDepartment/NewDepartment";
+import { useDispatch, useSelector } from 'react-redux';
+
 
 
 const Departments = () => {
+    const dispatch = useDispatch();
+
+    //const todayUserActions = useSelector((state) => state.todayUserActions);
+
+    const actionsLimitExceed = useSelector((state) => state.actionsLimitExceed);
 
     const [departments, setDepartments] = useState([])
     const [allShifts, setAllShifts] = useState([]);
@@ -40,30 +47,24 @@ const Departments = () => {
             const { data: departments } = await axios.get('http://localhost:8888/departments', {
                 headers: { "x-access-token": sessionStorage['x-access-token'] }
             })
-            console.log("departments: " + JSON.stringify(departments));
 
-
-            // const newDepartments = departments.map((depart) => {
-
-            //     const departmentManager = depart.manager?.firstName + " " + depart.manager?.lastName;   
-            //     return {...depart, manager: departmentManager}
-            // });
-
-            console.log("all departments " + JSON.stringify(departments))
             setDepartments(departments)
 
             const { data: employees } = await getAll(employeesURL);
-            console.log("all employees: " + JSON.stringify(employees))
             setAllEmployees(employees)
 
-            // setAllDepartments(allDepartments)
 
             const { data: allShifts } = await getAll(shiftsURL);
-            // console.log("allShifts: " + JSON.stringify(allShifts))
             setAllShifts(allShifts)
         }
 
-        uploadDepartmentsData();
+
+
+        if (!actionsLimitExceed) {
+            uploadDepartmentsData()
+            dispatch({ type: 'ADD' });
+        }
+
 
     }, [])
 
@@ -114,7 +115,9 @@ const Departments = () => {
     const updateEmployee = async (newEmp) => {
 
         const data = await updateItem(employeesURL, newEmp._id, newEmp)
-
+        const { data: employees } = await getAll(employeesURL);
+        setAllEmployees(employees)
+        setEmployeeSelected(false)
 
     }
 
@@ -149,9 +152,9 @@ const Departments = () => {
         <div className="Departments">
 
 
-            {!employeeSelected && !departmentSelected && !newDepartmentSelected && 
+            {!employeeSelected && !departmentSelected && !newDepartmentSelected &&
                 <div>
-                    <button onClick={() => setNewDepartmentSelected(true)}>New Department</button>
+                    <button disabled={actionsLimitExceed} onClick={() => setNewDepartmentSelected(true)}>New Department</button>
                     <TableContainer component={Paper}>
                         <Table sx={{ minWidth: 650 }} aria-label="simple table">
                             <TableHead>

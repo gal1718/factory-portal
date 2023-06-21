@@ -10,11 +10,14 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { useSelector, useDispatch } from 'react-redux';
 
 const Users = () => {
 
 
     const [users, setUsers] = useState([])
+    const actionsLimitExceed = useSelector((state) => state.actionsLimitExceed);
+    const dispatch = useDispatch();
 
     useEffect(() => {
 
@@ -24,19 +27,20 @@ const Users = () => {
             const { data: users } = await axios.get('http://localhost:8888/users', {
                 headers: { "x-access-token": sessionStorage['x-access-token'] }
             })
-            // console.log("departments: " + JSON.stringify(departments));
-            // const newEmployees = employees.map((emp) => {
-
-            //     const departmentName = emp.department?.name || "";   
-            //     return {...emp, department: departmentName}
-            // });
+      
             console.log("users " + JSON.stringify(users));
             setUsers(users)
-            // setUserFullName(res.data)
+           
 
         }
 
-        uploadUsersData();
+      
+        if (!actionsLimitExceed) {
+
+            uploadUsersData();
+            dispatch({ type: 'ADD' });
+
+        }
 
     }, [])
 
