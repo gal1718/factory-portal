@@ -8,6 +8,14 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import {
+  Btn,
+  ColumnContainer,
+  RowContainer,
+  Typography,
+} from "../Common/Common.style";
+import Container from "@mui/material/Container";
+import Paper from "@mui/material/Paper";
 
 function Home({ user, setUser }) {
   // Home is the first page when login -> loading the actions to the store (dispatch)/ not possible to create the store and dispatch
@@ -15,7 +23,7 @@ function Home({ user, setUser }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const todayUserActions = useSelector((state) => state.todayUserActions);
-  // const actionsLimitExceed = useSelector((state) => state.actionsLimitExceed);
+  const actionsLimitExceed = useSelector((state) => state.actionsLimitExceed);
 
   useEffect(() => {
     const getUserActions = async () => {
@@ -68,23 +76,42 @@ function Home({ user, setUser }) {
     navigate("/login");
   };
 
+  if (actionsLimitExceed) {
+    //fix it
+    debugger;
+    alert("Actions limit exceeded");
+    handleLogOut();
+  }
+
   return (
     <div className="Home">
-      Hello {user.name}
-      <button style={{ float: "right", margin: "10px" }} onClick={handleLogOut}>
-        {" "}
-        LogOut
-      </button>
-      <br />
-      <Link to="/">Home</Link> {" | "}
-      <Link to="/employees">Employees</Link> {" | "}
-      <Link to="/departments">Departments</Link> {" | "}
-      <Link to="/shifts">Shifts</Link> {" | "}
-      <Link to="/users">Users</Link>
-      <br />
-      <div style={{ textAlign: "left" }}>
-        <Outlet />
-      </div>
+      <ColumnContainer>
+        <RowContainer
+          sx={{
+            width: "100%",
+            justifyContent: "space-between",
+            marginBottom: "50px",
+          }}
+        >
+          <div style={{ width: "33.33%" }}></div>
+          <RowContainer sx={{ width: "33.33%", justifyContent: "center" }}>
+            <Link to="/">Home</Link> {" | "}
+            <Link to="/employees">Employees</Link> {" | "}
+            <Link to="/departments">Departments</Link> {" | "}
+            <Link to="/shifts">Shifts</Link> {" | "}
+            <Link to="/users">Users</Link>
+          </RowContainer>
+          <RowContainer sx={{ width: "33.33%", justifyContent: "end" }}>
+            <Typography sx={{ marginRight: "5px" }}>
+              Hello {user.name}
+            </Typography>
+            <Btn onClick={handleLogOut}> LogOut</Btn>
+          </RowContainer>
+        </RowContainer>
+        <Container>
+          <Outlet />
+        </Container>
+      </ColumnContainer>
     </div>
   );
 }

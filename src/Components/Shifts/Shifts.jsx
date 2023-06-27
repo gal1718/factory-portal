@@ -17,7 +17,21 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-import Button from "@mui/material/Button";
+import {
+  Btn,
+  ColumnContainer,
+  RowContainer,
+  Autocomplete,
+  TextField,
+  List,
+  ListItemText,
+  CustomListItem,
+  PersonIcon
+} from "../Common/Common.style";
+import EditShift from "../EditShift/EditShift";
+import NewShift from "../NewShift/NewShift";
+
+
 
 const Shifts = () => {
   const actionsLimitExceed = useSelector((state) => state.actionsLimitExceed);
@@ -26,8 +40,8 @@ const Shifts = () => {
   const [shifts, setShifts] = useState([{}]);
   const [allEmployees, setAllEmployees] = useState([]);
   const [selectedShift, setSelectedShift] = useState({}); // To store the selected shift for editing
+  const [openDialog, setOpenDialog] = useState(false); // To control the visibility of the dialog#
   const [shiftEmployees, setShiftEmployees] = useState([]); //for display changes
-  const [openDialog, setOpenDialog] = useState(false); // To control the visibility of the dialog
 
   const today = new Date();
   const formattedDate = today.toISOString().split("T")[0];
@@ -43,8 +57,17 @@ const Shifts = () => {
         headers: { "x-access-token": sessionStorage["x-access-token"] },
       });
 
-      console.log("shifts " + JSON.stringify(shifts));
-      setShifts(shifts);
+      // console.log("shifts " + JSON.stringify(shifts));
+
+      const formattedShifts = shifts.map((shift) => {
+        const formattedDate = new Date(shift.date).toISOString().split("T")[0];
+        return { ...shift, date: formattedDate };
+      });
+      setShifts(formattedShifts);
+
+      // if(shifts){
+      //   console.log("tst: " + Shifts[0].date + " type: " + typeof(Shifts[0].date))
+      // }
 
       const { data: employees } = await getAll(employeesURL);
       setAllEmployees(employees);
@@ -56,17 +79,9 @@ const Shifts = () => {
     }
   }, []);
 
-  const addNewShift = async () => {
-    addItem(shiftsURL, newShift);
-    const { data: shifts } = await getAll(shiftsURL);
-    setShifts(shifts);
-    const today = new Date();
-    const formattedDate = today.toISOString().split("T")[0];
-    setNewShift({ date: formattedDate, startingHr: 0, endingHr: 0 });
-  };
-
   const handleShiftClick = (shift) => {
     //set the shift employees
+    debugger;
     const shiftEmps = [];
     allEmployees.map((employee) => {
       if (employee.shifts.some((empShift) => empShift._id == shift._id)) {
@@ -82,206 +97,130 @@ const Shifts = () => {
   };
 
   const handleDialogClose = () => {
+    //setEmployeesToUpdate([]);
+    setOpenDialog(false);
+    setSelectedShift({});
+  };
+
+  const addNewShift = async () => {
+    debugger;
+    addItem(shiftsURL, newShift);
+    dispatch({ type: "ADD" });
+    const { data: shifts } = await getAll(shiftsURL);
+    console.log("shifts reyurns: " + shifts);
+    const formattedShifts = shifts.map((shift) => {
+      const formattedDate = new Date(shift.date).toISOString().split("T")[0];
+      return { ...shift, date: formattedDate };
+    });
+    setShifts(formattedShifts);
     setOpenDialog(false);
   };
 
-  const handleShiftUpdate = async () => {
-    //add also the employees update
+  const handleShiftUpdate = async (employeesToUpdate) => {
+    //add  the employees update in case that selectedshift is not null or newshift = null or emp for update
     debugger;
+    if (employeesToUpdate) {
+      const resp = await updateItems(employeesURL, employeesToUpdate);
+      const { data: employees } = await getAll(employeesURL);
+      setAllEmployees(employees);
+    }
+
     //update employees also
 
     const resp = await updateItem(shiftsURL, selectedShift._id, selectedShift);
+    dispatch({ type: "ADD" });
 
     const { data: shifts } = await getAll(shiftsURL);
-    setShifts(shifts);
-    // const { data: employees } = await getAll(employeesURL);
-    // setEmployees(employees);
-    // After updating the shift, you can fetch the updated shifts and update the state
+    const formattedShifts = shifts.map((shift) => {
+      const formattedDate = new Date(shift.date).toISOString().split("T")[0];
+      return { ...shift, date: formattedDate };
+    });
+    setShifts(formattedShifts);
     setOpenDialog(false); //CHECK IF NEEDE, SETSHIFTS RENDERE
-  };
-
-  const handleEmployeeAddition = () => {};
-
-  const handleEmployeeRemoval = (empId) => {
-    debugger;
-
-    const newShiftEmp = shiftEmployees.filter((emp) => emp._id != empId);
-    console.log("newSh " + newShiftEmp);
-    setShiftEmployees(newShiftEmp);
   };
 
   return (
     <div className="Shifts">
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell align="right">Starting Hour</TableCell>
-              <TableCell align="right">Ending Hour</TableCell>
-              <TableCell align="right">Assinged Employees</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {shifts.map((shift, index) => (
-              <TableRow
-                key={index}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                onClick={() => handleShiftClick(shift)} // Handle shift click event
-              >
-                <TableCell component="th" scope="row">
-                  {shift.date}
-                </TableCell>
-                <TableCell align="right">{shift.startingHr}</TableCell>
-                <TableCell align="right">{shift.endingHr}</TableCell>
-                <TableCell align="right">
-                  <ul>
-                    {allEmployees.map((emp, index) => {
-                      return emp.shifts.map((userShift) => {
-                        if (userShift._id == shift._id) {
-                          return (
-                            <li
-                              style={{ align: "right" }}
-                              key={index}
-                            >{`${emp.firstName} ${emp.lastName}`}</li>
-                          );
-                        }
-                      });
-                    })}
-                  </ul>
-                </TableCell>
+      <ColumnContainer>
+        <Btn
+          sx={{ alignSelf: "self-start" }}
+          variant="contained"
+          onClick={() => setOpenDialog(true)}
+        >
+          New Shift
+        </Btn>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Date</TableCell>
+                <TableCell align="right">Starting Hour</TableCell>
+                <TableCell align="right">Ending Hour</TableCell>
+                <TableCell align="right">Assinged Employees</TableCell>
               </TableRow>
-            ))}
+            </TableHead>
+            <TableBody>
+              {shifts.map((shift, index) => (
+                <TableRow
+                  key={index}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  onClick={() => handleShiftClick(shift)} // Handle shift click event
+                >
+                  <TableCell component="th" scope="row">
+                    {shift.date}
+                  </TableCell>
+                  <TableCell align="right">{shift.startingHr}</TableCell>
+                  <TableCell align="right">{shift.endingHr}</TableCell>
+                  <TableCell align="right">
+                    <List dense>
+                      {allEmployees.map((emp) => {
+                        return emp.shifts.map((empShift) => {
+                          if (empShift._id == shift._id) {
+                            return (
+                              <CustomListItem
+                                key={emp._id}
+                                primary={`${emp.firstName} ${emp.lastName}`}
+                                secondary={`${emp.department.name}`}
+                                icon= {<PersonIcon />}
+                              />
+                            );
+                          }
+                        });
+                      })}
+                    </List>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-            <TableRow
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                <input
-                  value={newShift.date}
-                  onChange={(event) =>
-                    setNewShift({ ...newShift, date: event.target.value })
-                  }
-                  type="date"
-                ></input>
-              </TableCell>
-              <TableCell align="right">
-                <input
-                  value={newShift.startingHr}
-                  onChange={(event) =>
-                    setNewShift({
-                      ...newShift,
-                      startingHr: +event.target.value,
-                    })
-                  }
-                  type="number"
-                ></input>
-              </TableCell>
-              <TableCell align="right">
-                <input
-                  value={newShift.endingHr}
-                  onChange={(event) =>
-                    setNewShift({ ...newShift, endingHr: +event.target.value })
-                  }
-                  type="number"
-                ></input>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <button
-        disabled={
-          actionsLimitExceed ||
-          !newShift.date ||
-          !newShift.startingHr ||
-          !newShift.endingHr
-        }
-        onClick={addNewShift}
-      >
-        Add Shift
-      </button>
-
-      {/* Dialog for editing shift details */}
-      <Dialog open={openDialog} onClose={handleDialogClose}>
-        <DialogTitle>Edit Shift</DialogTitle>
-        <DialogContent>
-          Date:{" "}
-          <input
-            value={selectedShift.date}
-            onChange={(event) =>
-              setSelectedShift({ ...selectedShift, date: event.target.value })
-            }
-            type="date"
-          ></input>{" "}
-          <br />
-          Starting HR:
-          <input
-            value={selectedShift.startingHr}
-            onChange={(event) =>
-              setSelectedShift({
-                ...selectedShift,
-                startingHr: +event.target.value,
-              })
-            }
-            type="number"
-          ></input>{" "}
-          <br />
-          Ending HR:
-          <input
-            value={selectedShift.endingHr}
-            onChange={(event) =>
-              setSelectedShift({
-                ...selectedShift,
-                endingHr: +event.target.value,
-              })
-            }
-            type="number"
-          ></input>{" "}
-          <br /> <br />
-          <div style={{ display: "flex" }}>
-            <div>
-              Add Employees
-              <ul>
-                {allEmployees.map((emp, index) => {
-                  if (
-                    !shiftEmployees.some((empShift) => empShift._id == emp._id)
-                  ) {
-                    return (
-                      <li
-                        onClick={handleEmployeeAddition}
-                        style={{ align: "right" }}
-                        key={index}
-                      >{`${emp.firstName} ${emp.lastName}`}</li>
-                    );
-                  }
-                })}
-              </ul>
-            </div>
-
-            <div>
-              Assingned Employees
-              <ul>
-                {shiftEmployees.map((emp, index) => {
-                  return (
-                    <li style={{ align: "right" }} key={index}>
-                      {`${emp.firstName} ${emp.lastName}`}{" "}
-                      <span
-                        onClick={() => handleEmployeeRemoval(emp._id)}
-                        style={{ color: "red" }}
-                      >
-                        X
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          </div>
-          <button onClick={handleShiftUpdate}> Update</button>
-          <button onClick={handleDialogClose}> Cancel</button>
-        </DialogContent>
-      </Dialog>
+        {/* Dialog for editing shift details */}
+        <Dialog open={openDialog} onClose={handleDialogClose}>
+          <DialogTitle></DialogTitle>
+          <DialogContent>
+            {selectedShift._id && (
+              <EditShift
+                selectedShift={selectedShift}
+                setSelectedShift={setSelectedShift}
+                allEmployees={allEmployees}
+                shiftEmployees={shiftEmployees}
+                setShiftEmployees={setShiftEmployees}
+                handleDialogClose={handleDialogClose}
+                handleShiftUpdate={handleShiftUpdate}
+              />
+            )}
+            {!selectedShift._id && (
+              <NewShift
+                newShift={newShift}
+                setNewShift={setNewShift}
+                addNewShift={addNewShift}
+                handleDialogClose={handleDialogClose}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+      </ColumnContainer>
     </div>
   );
 };

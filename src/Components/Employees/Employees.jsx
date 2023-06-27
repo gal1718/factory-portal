@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Employee from "../Employee/Employee";
 import NewEmployee from "../NewEmployee/NewEmployee";
 import { employeesURL, departmentsURL, shiftsURL } from "../../constans";
@@ -19,6 +19,19 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { useSelector, useDispatch } from "react-redux";
+import Box from "@mui/material/Box";
+import {
+  Btn,
+  ColumnContainer,
+  RowContainer,
+  Autocomplete,
+  TextField,
+  List,
+  ListItemText,
+  CustomListItem,
+  WorkIcon,
+} from "../Common/Common.style";
+import "./Employees.style";
 
 const Employees = () => {
   const dispatch = useDispatch();
@@ -45,19 +58,33 @@ const Employees = () => {
   useEffect(() => {
     const uploadAllData = async () => {
       const { data: employees } = await getAll(employeesURL);
-      setEmployees(employees);
+
+      const formattedEmployees = employees.map((employee) => {
+        const newEmpShifts = employee.shifts.map((empShift) => {
+          const formattedDate = new Date(empShift.date)
+            .toISOString()
+            .split("T")[0];
+          return { ...empShift, date: formattedDate };
+        });
+        return { ...employee, shifts: newEmpShifts };
+      });
+
+      setEmployees(formattedEmployees);
 
       const { data: allDepartments } = await getAll(departmentsURL);
       setAllDepartments(allDepartments);
 
       const { data: allShifts } = await getAll(shiftsURL);
-      setAllShifts(allShifts);
+
+      const formattedShifts = allShifts.map((shift) => {
+        const formattedDate = new Date(shift.date).toISOString().split("T")[0];
+        return { ...shift, date: formattedDate };
+      });
+      setAllShifts(formattedShifts);
     };
 
-    if (!actionsLimitExceed) {
-      uploadAllData();
-      dispatch({ type: "ADD" });
-    }
+    uploadAllData();
+    dispatch({ type: "ADD" });
   }, []);
 
   const handleEmpSelection = (employee) => {
@@ -67,6 +94,7 @@ const Employees = () => {
 
   const updateEmployee = async (newEmp) => {
     const data = await updateItem(employeesURL, newEmp._id, newEmp);
+    dispatch({ type: "ADD" });
     const { data: employees } = await getAll(employeesURL);
     setEmployees(employees);
     setEmployeeSelected(false);
@@ -74,11 +102,13 @@ const Employees = () => {
 
   const deleteEmployee = async (empId) => {
     const data = await deleteItem(`${employeesURL}/${empId}`);
+    dispatch({ type: "ADD" });
     setEmployeeSelected(false);
   };
 
   const addNewEmployee = async (newEmp) => {
     addItem(employeesURL, newEmp);
+    dispatch({ type: "ADD" });
     const { data: employees } = await getAll(employeesURL);
     setEmployees(employees);
     setNewEmployee({
@@ -92,7 +122,7 @@ const Employees = () => {
 
   const updateDepartment = async (newDep) => {
     const data = await updateItem(departmentsURL, newDep._id, newDep);
-
+    dispatch({ type: "ADD" });
     const { data: departments } = await getAll(departmentsURL);
     setAllDepartments(departments);
     const { data: employees } = await getAll(employeesURL);
@@ -102,6 +132,7 @@ const Employees = () => {
 
   const deleteDepartment = async (depId) => {
     const data = await axios.delete(`${departmentsURL}/${depId}`);
+    dispatch({ type: "ADD" });
     setDepartmentSelected(false);
   };
 
@@ -120,32 +151,33 @@ const Employees = () => {
   return (
     <div className="Employees">
       {!employeeSelected && !departmentSelected && !newEmployeeSelected && (
-        <div>
-          <button
-            disabled={actionsLimitExceed}
-            style={{ marginRight: "30px" }}
-            onClick={() => setNewEmployeeSelected(true)}
-          >
-            New Employee
-          </button>
-          <strong>
-            Filter by Department:{" "}
-            <select
-              name="departments"
-              value={departmentIdFilter}
-              onChange={(event) => setDepartmentIdFilter(event.target.value)}
+        <ColumnContainer>
+          <RowContainer sx={{ alignSelf: "self-start" }}>
+            <Btn
+              variant="contained"
+              onClick={() => setNewEmployeeSelected(true)}
             >
-              <option value="">All</option>
-              {allDepartments.map((department, index) => {
-                return (
-                  <option key={index} value={department._id}>
-                    {" "}
-                    {department.name}
-                  </option>
-                );
-              })}
-            </select>
-          </strong>
+              New Employee
+            </Btn>
+            <Autocomplete
+              sx={{ width: "auto" }}
+              autoComplete={false}
+              options={[{ name: "All", _id: "" }, ...allDepartments]}
+              getOptionLabel={(option) => option.name}
+              renderInput={(params) => (
+                <Box style={{width: "300px"}}>
+                  <TextField
+                    {...params}
+                    fullWidth="true"
+                    label="Filter By Department"
+                  />
+                </Box>
+              )}
+              onChange={(event, value) =>
+                setDepartmentIdFilter(value?._id || "")
+              }
+            ></Autocomplete>
+          </RowContainer>
           <br></br>
           <br></br>
           <TableContainer component={Paper}>
@@ -154,7 +186,7 @@ const Employees = () => {
                 <TableRow>
                   <TableCell>Name</TableCell>
                   <TableCell align="right">Department</TableCell>
-                  <TableCell align="right">start Work Year</TableCell>
+                  <TableCell align="right">Start Work Year</TableCell>
                   <TableCell align="right">Shifts</TableCell>
                 </TableRow>
               </TableHead>
@@ -189,18 +221,23 @@ const Employees = () => {
                         {employee.startWorkYear}
                       </TableCell>
                       <TableCell align="right">
-                        <ul>
-                          {employee.shifts.map((shift, index) => (
-                            <li key={index}>{shift.date}</li>
+                        <List dense>
+                          {employee.shifts.map((shift) => (
+                            <CustomListItem
+                              key={shift._id}
+                              primary={`Date: ${shift.date}`}
+                              secondary={`Starts at: ${shift.startingHr}`}
+                              icon={<WorkIcon />}
+                            />
                           ))}
-                        </ul>
+                        </List>
                       </TableCell>
                     </TableRow>
                   ))}
               </TableBody>
             </Table>
           </TableContainer>
-        </div>
+        </ColumnContainer>
       )}
 
       {employeeSelected && (

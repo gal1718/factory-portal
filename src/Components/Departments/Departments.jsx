@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Department from "../Department/Department";
 import { shiftsURL, employeesURL, departmentsURL } from "../../constans";
-import { updateItem, getAll, updateItems, addItem } from "../../utils";
+import { updateItem, getAll, updateItems, addItem, deleteItem } from "../../utils";
 import Employee from "../Employee/Employee";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -13,6 +13,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import NewDepartment from "../NewDepartment/NewDepartment";
 import { useDispatch, useSelector } from "react-redux";
+import { Btn, List, CustomListItem, PersonIcon, ColumnContainer } from "../Common/Common.style";
 
 const Departments = () => {
   const dispatch = useDispatch();
@@ -49,15 +50,13 @@ const Departments = () => {
       setAllShifts(allShifts);
     };
 
-    if (!actionsLimitExceed) {
-      uploadDepartmentsData();
-      dispatch({ type: "ADD" });
-    }
+    uploadDepartmentsData();
+    dispatch({ type: "ADD" });
   }, []);
 
   const updateDepartment = async (newDep) => {
     const data = await updateItem(departmentsURL, newDep._id, newDep);
-
+    dispatch({ type: "ADD" });
     const { data: newDepartments } = await getAll(departmentsURL);
     setDepartments(newDepartments);
     setDepartmentSelected(false);
@@ -66,7 +65,9 @@ const Departments = () => {
   };
 
   const deleteDepartment = async (depId) => {
-    const data = await axios.delete(`${departmentsURL}/${depId}`);
+    debugger
+    const resp = await deleteItem(`${departmentsURL}/${depId}`);
+    dispatch({ type: "ADD" });
     const { data: newDepartments } = await getAll(departmentsURL);
     setDepartments(newDepartments);
     setDepartmentSelected(false);
@@ -85,6 +86,7 @@ const Departments = () => {
 
   const updateEmployee = async (newEmp) => {
     const data = await updateItem(employeesURL, newEmp._id, newEmp);
+    dispatch({ type: "ADD" });
     const { data: employees } = await getAll(employeesURL);
     setAllEmployees(employees);
     setEmployeeSelected(false);
@@ -98,10 +100,12 @@ const Departments = () => {
 
   const deleteEmployee = async (empId) => {
     const data = await axios.delete(`${employeesURL}/${empId}`);
+    dispatch({ type: "ADD" });
   };
 
   const addNewDepartment = async (newDep) => {
     addItem(departmentsURL, newDep);
+    dispatch({ type: "ADD" });
     const { data: departments } = await getAll(departmentsURL);
     setDepartments(departments);
     setNewDepartment({ name: "" });
@@ -111,20 +115,21 @@ const Departments = () => {
   return (
     <div className="Departments">
       {!employeeSelected && !departmentSelected && !newDepartmentSelected && (
-        <div>
-          <button
-            disabled={actionsLimitExceed}
+        <ColumnContainer>
+        
+          <Btn
+            variant="contained"
             onClick={() => setNewDepartmentSelected(true)}
           >
             New Department
-          </button>
+          </Btn>
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell align="right">Manager</TableCell>
-                  <TableCell align="right">Employees</TableCell>
+                  <TableCell><strong>Name</strong></TableCell>
+                  <TableCell align="right"><strong>Manager</strong></TableCell>
+                  <TableCell align="right"><strong>Employees</strong></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -144,26 +149,28 @@ const Departments = () => {
                       {dep.manager?.firstName}
                     </TableCell>
                     <TableCell align="right">
-                      <ul>
+                      <List dense>
                         {allEmployees.map((emp, index) => {
                           if (emp.department?._id == dep._id) {
                             return (
-                              <li
-                                style={{ align: "right" }}
-                                onClick={() => handleEmpSelection(emp._id)}
+                              <CustomListItem
                                 key={index}
-                              >{`${emp.firstName} ${emp.lastName}`}</li>
+                                primary={`${emp.firstName} ${emp.lastName}`}
+                                secondary={`Start Work Year: ${emp.startWorkYear}`}
+                                icon={<PersonIcon />}
+                                onClick = {()=> handleEmpSelection(emp._id)}
+                              />
                             );
                           }
                         })}
-                      </ul>
+                      </List>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
-        </div>
+        </ColumnContainer>
       )}
 
       {departmentSelected && (
