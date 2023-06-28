@@ -1,3 +1,5 @@
+import { Box, TextField, MenuItem } from "../Common/Common.style";
+
 const NewEmployee = ({
   setNewEmployeeSelected,
   newEmployee,
@@ -27,11 +29,12 @@ const NewEmployee = ({
     <div className="NewEmployee">
       <div>
         <h2> Add Employee:</h2>
-        <form onSubmit={handleSubmit}>
-          <strong>
-            First Name:{" "}
-            <input
-              type="text"
+          <Box component="form" sx={{ background: "green" }}>
+            <TextField
+              sx={{ marginRight: "5" }}
+              id="standard-basic"
+              label="First Name"
+              variant="standard"
               value={newEmployee.firstName}
               onChange={(event) =>
                 setNewEmployee({
@@ -39,69 +42,68 @@ const NewEmployee = ({
                   firstName: event.target.value,
                 })
               }
-            ></input>
-          </strong>{" "}
-          <br></br>
-          <strong>
-            Last Name:{" "}
-            <input
-              type="text"
+            />
+
+            <TextField
+              id="standard-basic"
+              label="Last Name"
+              variant="standard"
               value={newEmployee.lastName}
               onChange={(event) =>
-                setNewEmployee({ ...newEmployee, lastName: event.target.value })
+                setNewEmployee({
+                  ...newEmployee,
+                  lastName: event.target.value,
+                })
               }
-            ></input>
-          </strong>{" "}
-          <br></br>
-          <strong>
-            Start Work Year:{" "}
-            <input
+            />
+            <br />
+            <TextField
+              id="standard-basic"
+              label="Start Work Year"
+              variant="standard"
               type="number"
               value={newEmployee.startWorkYear}
               onChange={(event) =>
                 setNewEmployee({
                   ...newEmployee,
-                  startWorkYear: +event.target.value,
+                  startWorkYear: event.target.value,
                 })
               }
-            ></input>
-          </strong>{" "}
-          <br></br>
-          <strong>
-            Departments:{" "}
-            <select
-              name="departments"
-              value=""
+            />
+
+            <br></br>
+            <TextField
+              id="outlined-select-department"
+              select
               onChange={handleDepartmentChange}
+              label="Select"
+              defaultValue="EUR"
+              helperText="Please select your currency"
             >
-              <option value="" disabled>
-                Choose a Department
-              </option>
-              {allDepartments.map((department, index) => {
-                return (
-                  <option key={index} value={department._id}>
-                    {" "}
-                    {department.name}
-                  </option>
-                );
-              })}
-            </select>
-          </strong>
-          <br></br>
-          <br></br>
-          <button
-            disabled={
-              !newEmployee.firstName ||
-              !newEmployee.lastName ||
-              !newEmployee.startWorkYear ||
-              !newEmployee.department
-            }
-            type="submit"
-          >
-            Add
-          </button>
-        </form>
-        <button onClick={handleCancel}>Cancel</button>
+              {allDepartments.map((department) => (
+                <MenuItem key={department._id} value={department._id}>
+                  {department.name}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            
+            <br></br>
+            <br></br>
+            <button
+              disabled={
+                !newEmployee.firstName ||
+                !newEmployee.lastName ||
+                !newEmployee.startWorkYear ||
+                !newEmployee.department
+              }
+              onClick={handleSubmit}
+            >
+              Add
+            </button>
+            <button onClick={handleCancel}>Cancel</button>
+          </Box>
+        
       </div>
     </div>
   );

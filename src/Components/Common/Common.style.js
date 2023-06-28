@@ -9,9 +9,12 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import PersonIcon from "@mui/icons-material/Person";
 import WorkIcon from "@mui/icons-material/Work";
+import Box from '@mui/material/Box';
+
 
 export {
   TextField,
+  Box,
   Select,
   Autocomplete,
   MenuItem,

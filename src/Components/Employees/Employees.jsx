@@ -107,9 +107,11 @@ const Employees = () => {
   };
 
   const addNewEmployee = async (newEmp) => {
+    debugger
     addItem(employeesURL, newEmp);
     dispatch({ type: "ADD" });
     const { data: employees } = await getAll(employeesURL);
+    console.log("hhh employees: " + JSON.stringify(employees))
     setEmployees(employees);
     setNewEmployee({
       firstName: "",
@@ -152,7 +154,7 @@ const Employees = () => {
     <div className="Employees">
       {!employeeSelected && !departmentSelected && !newEmployeeSelected && (
         <ColumnContainer>
-          <RowContainer sx={{ alignSelf: "self-start" }}>
+          <RowContainer sx={{ alignSelf: "self-start", width: "100%" }}>
             <Btn
               variant="contained"
               onClick={() => setNewEmployeeSelected(true)}
@@ -160,18 +162,20 @@ const Employees = () => {
               New Employee
             </Btn>
             <Autocomplete
-              sx={{ width: "auto" }}
               autoComplete={false}
               options={[{ name: "All", _id: "" }, ...allDepartments]}
               getOptionLabel={(option) => option.name}
               renderInput={(params) => (
-                <Box style={{width: "300px"}}>
-                  <TextField
-                    {...params}
-                    fullWidth="true"
-                    label="Filter By Department"
-                  />
-                </Box>
+                <TextField
+                  sx={{
+                    width: "fit-content",
+                    "& input": {
+                      width: "fit-content",
+                    },
+                  }}
+                  {...params}
+                  label="Filter By Department"
+                />
               )}
               onChange={(event, value) =>
                 setDepartmentIdFilter(value?._id || "")

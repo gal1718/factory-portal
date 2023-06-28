@@ -1,3 +1,6 @@
-.MuiInputBase-input {
+.MuiAutocomplete-root .MuiOutlinedInput-root .MuiAutocomplete-input,
+.css-nxo287-MuiInputBase-input-MuiOutlinedInput-input.MuiAutocomplete-input{
+
+    color: brown;
     width: fit-content;
 }
